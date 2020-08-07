@@ -10,7 +10,7 @@ setup(
     name='rch',
     packages=['rch'],
     version='0.1',
-    description='Package for accessing data and APIs developed for the GEOGloWS initiative',
+    description='A package containing the personal python utilities of Riley Hales',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Riley Hales',
