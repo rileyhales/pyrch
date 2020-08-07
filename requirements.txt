@@ -1,0 +1,5 @@
+numpy
+pandas
+netCDF4
+xarray
+rasterio

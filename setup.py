@@ -1,0 +1,30 @@
+from setuptools import setup
+
+with open("README.md", "r") as readme:
+    long_description = readme.read()
+
+with open('requirements.txt', 'r') as req:
+    install_requires = req.read().splitlines()
+
+setup(
+    name='rch',
+    packages=['rch'],
+    version='0.1',
+    description='Package for accessing data and APIs developed for the GEOGloWS initiative',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author='Riley Hales',
+    url='https://rileyhales.com',
+    project_urls=dict(Documentation='https://pyrch.readthedocs.io', Source='https://github.com/rileyhales/pyrch',
+                      License='https://choosealicense.com/licenses/bsd-3-clause-clear'),
+    license='BSD 3-Clause Clear License',
+    license_family='BSD',
+    classifiers=[
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: BSD License',
+        'Natural Language :: English',
+    ],
+    install_requires=install_requires
+)
