@@ -7,7 +7,7 @@ __all__ = ['interpolate_idw', 'gumbel_1', 'flow_duration_curve']
 
 
 def interpolate_idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None, nearest: int = None,
-                    bound: int = False) -> float:
+                    bound: int = None) -> float:
     """
     Computes the interpolated value at a specified location (loc) from an array of measured values (a). There are 3
     ways to limit the interpolation points considered.
