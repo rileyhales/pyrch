@@ -1,17 +1,22 @@
-import numpy as np
+import unittest
+
 import pandas as pd
 
 import rch
 
 
-def test_idw():
-    df = pd.DataFrame({'x': list(range(-20, 21)),
-                       'y': np.random.randint(-20, 20, size=(41,)),
-                       'v': np.random.randint(-60, 60, size=(41,))})
-    print(df.loc[(df['x'] > 0) & (df['y'] > 0)])
-    exit()
-    print(rch.interpolate_idw(df.values, (0, 0), bound=1))
-    return
+class TestMisc(unittest.TestCase):
+    print('hello')
+
+    def gen_grid(self):
+        print('gen grid')
+        self.assertIsInstance(rch.misc.gen_interpolation_grid(True, 4), pd.DataFrame, "Failed random grid")
+        self.assertIsInstance(rch.misc.gen_interpolation_grid(False, 4), pd.DataFrame, "Failed structured grid")
+
+    def idw(self):
+        print('idw')
+        grid = rch.misc.gen_interpolation_grid()
 
 
-test_idw()
+if __name__ == '__main__':
+    unittest.main()

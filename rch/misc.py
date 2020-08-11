@@ -14,13 +14,13 @@ def interpolate_idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None,
 
     1. Use a search radius: only points within a certain radius of the location to be interpolated will be considered
     2. Choose a number of nearest neighbors to use.
-    3. Use a number of points that bound the interpolation location. That is, take the n nearest points
+    3. Use a number of points on each side that bound the interpolation location.
 
     All 3 may be applied but the most restrictive option will govern. For example, suppose you choose a radius of 10
     and to use the 5 nearest neighbors. If there are 100 points within the radius of 10, 95 of them will be ignored
     since you limited the interpolation to the nearest 5 points. Similarly, If you choose to take 5 points from each of
     the bounding quadrants and also the nearest 5 neighbors, then 15 of the points chosen because they bound the
-    location will get ignored. This behavior could be intentional so the all 3 options can still be applied.
+    location will get ignored. This behavior could be intentional so all 3 variables can still be specified and applied.
 
     Args:
         a (np.array): a numpy array with 3 columns (x, y, value) and a row for each measurement
@@ -50,7 +50,7 @@ def interpolate_idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None,
             b = pd.concat((b.loc[(b['x'] >= 0) & (b['y'] > 0)].head(bound),
                            b.loc[(b['x'] >= 0) & (b['y'] < 0)].head(bound),
                            b.loc[(b['x'] < 0) & (b['y'] > 0)].head(bound),
-                           b.loc[(b['x'] < 0) & (b['y'] < 0)].head(bound), ))
+                           b.loc[(b['x'] < 0) & (b['y'] < 0)].head(bound),))
         if nearest is not None:
             b = b.head(nearest)
         if r is not None:
@@ -64,6 +64,31 @@ def interpolate_idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None,
     dist = np.divide(1, dist)
 
     return float(np.divide(np.sum(np.multiply(dist, val)), np.sum(dist)))
+
+
+def gen_interpolation_grid(random: bool = False, n: int = 41):
+    """
+    Generates a symmetrical, square shaped grid centered at 0, 0 where the length of one size is n. N should be an odd
+    number so that the grid can be symmetrical and include the x and y axis lines. This function will add 1 to the
+    shape if you provide an even number.
+
+    Args:
+        random (bool): Whether the values are random or equal to x * y
+        n (int): an odd integer defining the length of the square grid's edges
+
+    Returns:
+        pd.DateFrame
+    """
+    if n % 2 == 0:
+        l = n + 1
+    else:
+        l = n
+    x = np.asarray([[i] * l for i in range(-(l // 2), (l // 2) + 1)]).flatten()
+    y = np.asarray(list(range(-(l // 2), (l // 2) + 1)) * l).flatten()
+    if random:
+        return pd.DataFrame({'x': x, 'y': y, 'v': np.random.randint(-(l // 2), l // 2, size=(l * l,))})
+    else:
+        return pd.DataFrame({'x': x, 'y': y, 'v': x * y})
 
 
 def gumbel_1(std: float, xbar: float, rp: int or float) -> float:
