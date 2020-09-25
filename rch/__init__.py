@@ -1,4 +1,6 @@
-__version__ = '0.5'
+# todo version number
+__version__ = ''
 
+import rch.sudoku
 import rch.web
 from rch.misc import *
