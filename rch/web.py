@@ -8,9 +8,8 @@ __all__ = ['read_google_sheet', 'write_google_sheet', 'tmdb_find_movie', 'tmdb_d
 
 
 def read_google_sheet(service: build, sheet_id: str, sheet_range: str,
-                      skip_columns: int or list or tuple = None,
-                      skip_rows: int or list or tuple = None,
-                      columns_labeled: bool = True, contains_index: bool = False) -> pd.DataFrame:
+                      skip_cols: int or list or tuple = None, skip_rows: int or list or tuple = None,
+                      cols_labeled: bool = True, rows_indexed: bool = False) -> pd.DataFrame:
     """
     Reads a subset of a google sheet via the google sheets api and returns it converted to a pandas DataFrame
 
@@ -19,13 +18,13 @@ def read_google_sheet(service: build, sheet_id: str, sheet_range: str,
         sheet_id (str): the identifier for the google sheet
         sheet_range (str): the absolute reference to the cells to be read. For example: "Sheet1!A:H" reads columns
             A -> H on the sheet names Sheet1 within the specified Google Sheet.
-        skip_columns (int): an int or iterable of ints of the spreadsheet columns numbers to be ignored in the output
+        skip_cols (int): an int or iterable of ints of the spreadsheet columns numbers to be ignored in the output
             (e.g. column A = 1, column B = 2, columns A through C = (1, 2, 3)
         skip_rows (int): an int or iterable of ints of the spreadsheet row numbers to be ignored in the output
-        columns_labeled (bool): Indicates whether the first row (after skip rows is applied) should be interpreted as
+        rows_indexed (bool): Indicates whether the first column (after skip columns is applied) should be interpreted
+            as the index in pandas
+        cols_labeled (bool): Indicates whether the first row (after skip rows is applied) should be interpreted as
             labels for the data in the columns
-        contains_index (bool): Indicates whether the first column (after skip columns is applied) should be interpreted
-            as a the index in pandas
 
     Returns:
         pd.DataFrame
@@ -42,16 +41,20 @@ def read_google_sheet(service: build, sheet_id: str, sheet_range: str,
     # delete any rows or columns specified by the user
     if skip_rows is not None:
         array = np.delete(array, np.asarray(skip_rows) - 1, axis=0)  # subtract 1 -> sheets start at 1, np at 0
-    if skip_columns is not None:
-        array = np.delete(array, np.asarray(skip_columns) - 1, axis=1)
+    if skip_cols is not None:
+        array = np.delete(array, np.asarray(skip_cols) - 1, axis=1)
 
-    # convert the resulting array to a pandas
-    if columns_labeled:
+    # extract index and column labels if applicable
+    index = None
+    columns = None
+    if rows_indexed:
+        index = array[:, 0]
+        array = np.delete(array, 0, axis=1)
+    if cols_labeled:
         columns = array[0]
         array = np.delete(array, 0, axis=0)
-        return pd.DataFrame(array, columns=columns)
-    else:
-        return pd.DataFrame(array)
+
+    return pd.DataFrame(array, columns=columns, index=index)
 
 
 def write_google_sheet(df: pd.DataFrame, service: build, sheet_id: str, sheet_range: str) -> build:
