@@ -2,23 +2,23 @@ import numpy as np
 import pandas as pd
 
 EXAMPLE = np.array([[np.nan, 8, 4, 9, np.nan, np.nan, 7, 5, np.nan],
-                    [3, np.nan, 6, 4, np.nan, 5, 2, np.nan, 8.],
-                    [np.nan, 5, np.nan, np.nan, np.nan, 2, 4, np.nan, 6.],
-                    [np.nan, 1, 5, np.nan, np.nan, 8, 9, np.nan, 2.],
-                    [9, np.nan, 8, 6, np.nan, np.nan, np.nan, np.nan, 4.],
+                    [3, np.nan, 6, 4, np.nan, 5, 2, np.nan, 8],
+                    [np.nan, 5, np.nan, np.nan, np.nan, 2, 4, np.nan, 6],
+                    [np.nan, 1, 5, np.nan, np.nan, 8, 9, np.nan, 2],
+                    [9, np.nan, 8, 6, np.nan, np.nan, np.nan, np.nan, 4],
                     [7, 6, 3, np.nan, 4, 9, 1, np.nan, np.nan],
-                    [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 1.],
-                    [np.nan, np.nan, np.nan, 5, 2, 7, 6, 4, 9.],
+                    [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 1],
+                    [np.nan, np.nan, np.nan, 5, 2, 7, 6, 4, 9],
                     [np.nan, np.nan, np.nan, 1, np.nan, np.nan, np.nan, np.nan, np.nan]], )
 
 
 class Sudoku:
-    def __init__(self, grid: str or np.array, **kwargs):
+    def __init__(self, grid: str or np.ndarray, **kwargs):
         if isinstance(grid, str):
             self.grid = pd.read_csv(grid, names=list(range(1, 10))) \
                 .replace(kwargs.get('blank', 0), np.nan) \
                 .values
-        elif isinstance(grid, np.array):
+        elif isinstance(grid, np.ndarray):
             self.grid = grid
         else:
             raise TypeError('The grid argument should be a str path to a csv file or a np 9x9 array')
