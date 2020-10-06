@@ -36,13 +36,13 @@ class Sudoku:
 
         # solver configs
         self.steps = ''
+        self.iter = 0
         self.max_iter = kwargs.get('max_iter', 50)
 
     def solve(self):
         assigned = True
-        i = 0
+        self.iter = 0
         while assigned:
-            print(i)
             made_progress = []
             for n in range(1, 10):
                 options = self._annotate(n)
@@ -54,10 +54,10 @@ class Sudoku:
                 print('solved')
                 self.is_solved = True
                 return self.solution
-            elif i > self.max_iter:
+            elif self.iter > self.max_iter:
                 print('exceeded 50 iterations')
                 return
-            i += 1
+            self.iter += 1
 
         print('out of logical solution steps')
         return self.solution
@@ -164,9 +164,3 @@ class Sudoku:
 
     def solution_to_csv(self, path: str):
         pd.DataFrame(self.solution).to_csv(path, index=False, header=False)
-
-
-puzzle = Sudoku('hard_sudoku.csv')
-print(puzzle.grid)
-puzzle.solve()
-print(puzzle.solution)
