@@ -146,4 +146,4 @@ class Sudoku:
         pd.DataFrame(self.solution).to_csv(path, index=False, header=False)
 
     def to_html(self) -> str:
-        return pd.DataFrame(self.solution).to_html()
+        return pd.DataFrame(self.solution).to_html(index=False, header=False)
