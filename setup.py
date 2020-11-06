@@ -9,7 +9,9 @@ with open('requirements.txt', 'r') as req:
 setup(
     name='rch',
     packages=['rch'],
-    version='0.8',
+    version='0.8.1',
+    install_requires=install_requires,
+    python_requires='>3',
     description='A package containing the personal python utilities of Riley Hales',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -25,5 +27,4 @@ setup(
                  'Intended Audience :: Science/Research',
                  'License :: OSI Approved :: BSD License',
                  'Natural Language :: English',),
-    install_requires=install_requires
 )
