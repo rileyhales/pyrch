@@ -1,5 +1,6 @@
-__version__ = '0.7'
-
+import rch.eng
 import rch.sudoku
 import rch.web
-from rch.misc import *
+
+__version__ = '0.8'
+__author__ = 'Riley Hales'

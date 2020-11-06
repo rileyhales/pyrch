@@ -9,7 +9,7 @@ __all__ = ['read_google_sheet', 'write_google_sheet', 'tmdb_find_movie', 'tmdb_d
 
 def read_google_sheet(service: build, sheet_id: str, sheet_range: str,
                       skip_cols: int or list or tuple = None, skip_rows: int or list or tuple = None,
-                      cols_labeled: bool = True, rows_indexed: bool = False) -> pd.DataFrame:
+                      columns: bool = True, indexed: bool = False) -> pd.DataFrame:
     """
     Reads a subset of a google sheet via the google sheets api and returns it converted to a pandas DataFrame
 
@@ -21,9 +21,9 @@ def read_google_sheet(service: build, sheet_id: str, sheet_range: str,
         skip_cols (int): an int or iterable of ints of the spreadsheet columns numbers to be ignored in the output
             (e.g. column A = 1, column B = 2, columns A through C = (1, 2, 3)
         skip_rows (int): an int or iterable of ints of the spreadsheet row numbers to be ignored in the output
-        rows_indexed (bool): Indicates whether the first column (after skip columns is applied) should be interpreted
+        indexed (bool): Indicates whether the first column (after skip columns is applied) should be interpreted
             as the index in pandas
-        cols_labeled (bool): Indicates whether the first row (after skip rows is applied) should be interpreted as
+        columns (bool): Indicates whether the first row (after skip rows is applied) should be interpreted as
             labels for the data in the columns
 
     Returns:
@@ -45,16 +45,18 @@ def read_google_sheet(service: build, sheet_id: str, sheet_range: str,
         array = np.delete(array, np.asarray(skip_cols) - 1, axis=1)
 
     # extract index and column labels if applicable
-    index = None
-    columns = None
-    if rows_indexed:
-        index = array[:, 0]
+    idx = None
+    col = None
+    if indexed:
+        idx = array[:, 0]
         array = np.delete(array, 0, axis=1)
-    if cols_labeled:
-        columns = array[0]
+    if columns:
+        col = array[0]
         array = np.delete(array, 0, axis=0)
+    if indexed and columns:
+        idx = np.delete(idx, 0, axis=0)
 
-    return pd.DataFrame(array, columns=columns, index=index)
+    return pd.DataFrame(array, columns=col, index=idx)
 
 
 def write_google_sheet(df: pd.DataFrame, service: build, sheet_id: str, sheet_range: str) -> build:
