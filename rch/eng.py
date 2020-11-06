@@ -6,8 +6,8 @@ import pandas as pd
 __all__ = ['interpolate_idw', 'gumbel_1', 'flow_duration_curve', 'walk_downstream', 'walk_upstream']
 
 
-def interpolate_idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None, nearest: int = None,
-                    bound: int = None) -> float:
+def interpolate_idw(a: np.array, loc: tuple,
+                    p: int = 1, r: int or float = None, nearest: int = None, bound: int = None) -> float:
     """
     Computes the interpolated value at a specified location (loc) from an array of measured values (a). There are 3
     ways to limit the interpolation points considered.
@@ -109,25 +109,25 @@ def gumbel_1(std: float, xbar: float, rp: int or float) -> float:
     return -math.log(-math.log(1 - (1 / rp))) * std * .7797 + xbar - (.45 * std)
 
 
-def flow_duration_curve(a: list or np.array, steps: int = 500, exceedence: bool = True) -> pd.DataFrame:
+def flow_duration_curve(a: list or np.array, steps: int = 500, exceed: bool = True) -> pd.DataFrame:
     """
     Generate the flow duration curve for a provided series of data
 
     Args:
         a (list or np.array): the flow values for which to compute the flow duration curve
-        steps (int): the number of intervals between 0 and 100 for which to compute the exceedence probabilities
-        exceedence (bool): whether to show the exceedence probabilities (True) or non-exceedence probabilities (False)
+        steps (int): the number of intervals between 0 and 100 for which to compute the exceedance probabilities
+        exceed (bool): whether to show the exceedance probabilities (True) or non-exceedance probabilities (False)
 
     Returns:
         pd.DataFrame with 2 columns, probability and flow
     """
     percentiles = [round((100 / steps) * i, 5) for i in range(steps + 1)]
     flows = np.nanpercentile(a, percentiles)
-    if exceedence:
+    if exceed:
         percentiles.reverse()
-        columns = ['Exceedence Probability', 'Flow']
+        columns = ['Exceedance Probability', 'Flow']
     else:
-        columns = ['Non-Exceedence Probability', 'Flow']
+        columns = ['Non-exceedance Probability', 'Flow']
     return pd.DataFrame(np.transpose([percentiles, flows]), columns=columns)
 
 

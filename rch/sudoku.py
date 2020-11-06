@@ -1,26 +1,6 @@
 import numpy as np
 import pandas as pd
 
-EXAMPLE_1 = np.array([[np.nan, 8, 4, 9, np.nan, np.nan, 7, 5, np.nan],
-                      [3, np.nan, 6, 4, np.nan, 5, 2, np.nan, 8],
-                      [np.nan, 5, np.nan, np.nan, np.nan, 2, 4, np.nan, 6],
-                      [np.nan, 1, 5, np.nan, np.nan, 8, 9, np.nan, 2],
-                      [9, np.nan, 8, 6, np.nan, np.nan, np.nan, np.nan, 4],
-                      [7, 6, 3, np.nan, 4, 9, 1, np.nan, np.nan],
-                      [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 1],
-                      [np.nan, np.nan, np.nan, 5, 2, 7, 6, 4, 9],
-                      [np.nan, np.nan, np.nan, 1, np.nan, np.nan, np.nan, np.nan, np.nan]], )
-
-EXAMPLE_3 = np.array([[np.nan, 6, np.nan, np.nan, np.nan, 7, np.nan, 1, 8],
-                      [np.nan, np.nan, 2, np.nan, np.nan, np.nan, np.nan, np.nan, 5],
-                      [np.nan, np.nan, np.nan, np.nan, 6, np.nan, np.nan, np.nan, 4],
-                      [np.nan, np.nan, np.nan, 1, 9, np.nan, np.nan, 3, np.nan],
-                      [np.nan, np.nan, 1, 4, np.nan, 5, 6, np.nan, np.nan],
-                      [np.nan, 7, np.nan, np.nan, 2, 8, np.nan, np.nan, np.nan],
-                      [6, np.nan, np.nan, np.nan, 1, np.nan, np.nan, np.nan, np.nan],
-                      [7, np.nan, np.nan, np.nan, np.nan, np.nan, 8, np.nan, np.nan],
-                      [4, 1, np.nan, 7, np.nan, np.nan, np.nan, 2, np.nan]], )
-
 
 class Sudoku:
     def __init__(self, grid: str or np.ndarray, **kwargs):
@@ -162,5 +142,8 @@ class Sudoku:
                     made_assignment = True
         return made_assignment
 
-    def solution_to_csv(self, path: str):
+    def to_csv(self, path: str) -> None:
         pd.DataFrame(self.solution).to_csv(path, index=False, header=False)
+
+    def to_html(self) -> str:
+        return pd.DataFrame(self.solution).to_html()
