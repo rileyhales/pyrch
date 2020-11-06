@@ -143,7 +143,7 @@ class Sudoku:
         return made_assignment
 
     def to_csv(self, path: str) -> None:
-        pd.DataFrame(self.solution).to_csv(path, index=False, header=False)
+        pd.DataFrame(self.solution).astype(int).to_csv(path, index=False, header=False)
 
     def to_html(self) -> str:
-        return pd.DataFrame(self.solution).to_html(index=False, header=False)
+        return pd.DataFrame(self.solution).astype(int).to_html(index=False, header=False)
