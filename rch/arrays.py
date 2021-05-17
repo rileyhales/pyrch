@@ -96,14 +96,14 @@ def resample_1d(a: np.array, f: int, stat: str = 'mean'):
     Args:
         a (np.array): A 1D array of numbers
         f (int): An integer resampling factor/ratio evenly divisible into len(a)
-        stat (str): mean, max or min -> the method for aggregating the numeric values
+        stat (str): mean, max, min, median -> the method for aggregating the numeric values
 
     Returns:
         resampled np.array, ndim == 1,  shape == (a.shape[0] / f)
     """
     assert a.ndim == 1, "valid for 1D arrays only"
     assert a.shape[0] % f == 0, "length of axis=0 not evenly divisible by f0"
-    assert stat in ('mean', 'max', 'min'), "choose either mean, max, or min for aggregation stat"
+    assert stat in ('mean', 'max', 'min', 'median'), "choose either mean, max, min or median for aggregation stat"
 
     if stat == 'mean':
         return np.array([np.nanmean(i) for i in np.split(a, a.shape[0] / f)])
@@ -111,6 +111,8 @@ def resample_1d(a: np.array, f: int, stat: str = 'mean'):
         return np.array([np.nanmax(i) for i in np.split(a, a.shape[0] / f)])
     elif stat == 'min':
         return np.array([np.nanmin(i) for i in np.split(a, a.shape[0] / f)])
+    elif stat == 'median':
+        return np.array([np.nanmedian(i) for i in np.split(a, a.shape[0] / f)])
 
 
 def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean'):
@@ -121,7 +123,7 @@ def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean'):
         a (np.array): A 2D array of numbers
         f0 (int): An integer resampling factor/ratio evenly divisible into a.shape[0] (along the row axis)
         f1 (int): An integer resampling factor/ratio evenly divisible into a.shape[1] (along the col axis)
-        stat (str): mean, max or min -> the method for aggregating the numeric values
+        stat (str): mean, max, min, median -> the method for aggregating the numeric values
 
     Returns:
         resampled np.array, ndim == 2, shape == (a.shape[0] / f0, a.shape[1] / f1)
@@ -129,7 +131,7 @@ def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean'):
     assert a.ndim == 2, "valid for 2D arrays only"
     assert a.shape[0] % f0 == 0, "length of axis=0 not evenly divisible by f0"
     assert a.shape[1] % f1 == 0, "length of axis=1 not evenly divisible by f1"
-    assert stat in ('mean', 'max', 'min'), "choose either mean, max, or min for aggregation stat"
+    assert stat in ('mean', 'max', 'min', 'median'), "choose either mean, max, min or median for aggregation stat"
 
     a0_segments = a.shape[0] / f0
     a1_segments = a.shape[1] / f1
@@ -143,4 +145,6 @@ def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean'):
             arr.append([np.nanmax(c) for c in np.split(b, a1_segments, axis=1)])
         elif stat == 'min':
             arr.append([np.nanmin(c) for c in np.split(b, a1_segments, axis=1)])
+        elif stat == 'median':
+            arr.append([np.nanmedian(c) for c in np.split(b, a1_segments, axis=1)])
     return np.array(arr)

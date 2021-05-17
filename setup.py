@@ -1,5 +1,7 @@
 from setuptools import setup
 
+version = '0.10'
+
 with open("README.md", "r") as readme:
     long_description = readme.read()
 
@@ -20,7 +22,7 @@ classifiers = (
 setup(
     name='rch',
     packages=['rch'],
-    version='0.9',
+    version=version,
     install_requires=install_requires,
     python_requires='>3',
     description='A package containing the personal python utilities of Riley Hales',
