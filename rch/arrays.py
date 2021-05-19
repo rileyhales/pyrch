@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-__all__ = ['interpolate_idw', 'resample_1d', 'resample_2d', ]
+__all__ = ['interpolate_idw', 'resample_1d', 'resample_2d', 'gen_checkerboard']
 
 
 def interpolate_idw(a: np.array, loc: tuple,
@@ -89,7 +89,7 @@ def gen_interpolation_grid(n: int = 41, random: bool = False) -> pd.DataFrame:
         return pd.DataFrame({'x': x, 'y': y, 'v': x * y})
 
 
-def resample_1d(a: np.array, f: int, stat: str = 'mean'):
+def resample_1d(a: np.array, f: int, stat: str = 'mean') -> np.array:
     """
     Resamples the values in a 1D array by an integer factor using a specified stat type
 
@@ -115,7 +115,7 @@ def resample_1d(a: np.array, f: int, stat: str = 'mean'):
         return np.array([np.nanmedian(i) for i in np.split(a, a.shape[0] / f)])
 
 
-def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean'):
+def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean') -> np.array:
     """
     Resamples the values in a 2D array by an integer factor for each axis using a specified stat type
 
@@ -148,3 +148,25 @@ def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean'):
         elif stat == 'median':
             arr.append([np.nanmedian(c) for c in np.split(b, a1_segments, axis=1)])
     return np.array(arr)
+
+
+def gen_checkerboard(y: int, x: int) -> np.array:
+    """
+    Generates an array which alternates 0 and 1 in a checkerboard pattern
+
+    Args:
+        y: the height of the array, len(axis=0)
+        x: the width of the array, len(axis=1)
+
+    Returns:
+        np.array of shape (y, x)
+    """
+    a = []
+    a1 = [i % 2 for i in range(x)]
+    a2 = [(i + 1) % 2 for i in range(x)]
+    for i in range(y // 2):
+        a.append(a1)
+        a.append(a2)
+    if y % 2 == 1:
+        a.append(a1)
+    return np.array(a)
