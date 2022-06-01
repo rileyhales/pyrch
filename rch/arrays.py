@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
 
-__all__ = ['interpolate_idw', 'resample_1d', 'resample_2d', 'gen_checkerboard']
+__all__ = ['idw', 'resample_1d', 'resample_2d', 'checkerboard']
 
 
-def interpolate_idw(a: np.array, loc: tuple,
-                    p: int = 1, r: int or float = None, nearest: int = None, bound: int = None) -> float:
+def idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None, nearest: int = None, bound: int = None) -> float:
     """
     Computes the inverse distance weighted interpolated value at a specified location (loc) from an array of measured
     values (a). There are 3 ways to limit the interpolation points considered.
@@ -64,7 +63,7 @@ def interpolate_idw(a: np.array, loc: tuple,
     return float(np.divide(np.sum(np.multiply(dist, val)), np.sum(dist)))
 
 
-def gen_interpolation_grid(n: int = 41, random: bool = False) -> pd.DataFrame:
+def random_xyv(n: int = 41, random: bool = False) -> pd.DataFrame:
     """
     Generates a symmetrical, square shaped grid centered at 0, 0 where the length of one side is n. N should be an odd
     number so that the grid can be symmetrical and include the x and y axis lines. This function will add 1 to the
@@ -77,7 +76,7 @@ def gen_interpolation_grid(n: int = 41, random: bool = False) -> pd.DataFrame:
     Returns:
         pd.DateFrame with an 'x', 'y', and 'v' (value) column.
     """
-    size = n
+    size = int(n)
     if size % 2 == 0:
         size += 1
 
@@ -150,7 +149,7 @@ def resample_2d(a: np.array, f0: int, f1: int, stat: str = 'mean') -> np.array:
     return np.array(arr)
 
 
-def gen_checkerboard(y: int, x: int) -> np.array:
+def checkerboard(y: int, x: int) -> np.array:
     """
     Generates an array which alternates 0 and 1 in a checkerboard pattern
 
