@@ -3,10 +3,10 @@ import math
 import numpy as np
 import pandas as pd
 
-__all__ = ['gumbel_1', 'flow_duration_curve', 'walk_downstream', 'walk_upstream', ]
+__all__ = ['gumbel1', 'fdc', 'downstream', 'upstream', ]
 
 
-def gumbel_1(std: float, xbar: float, rp: int or float) -> float:
+def gumbel1(std: float, xbar: float, rp: int or float) -> float:
     """
     Solves the Gumbel Type I probability distribution function (pdf) = exp(-exp(-b)) where b is the covariate. Provide
     the standard deviation and mean of the list of annual maximum flows. Compare scipy.stats.gumbel_r
@@ -24,7 +24,7 @@ def gumbel_1(std: float, xbar: float, rp: int or float) -> float:
     return -math.log(-math.log(1 - (1 / rp))) * std * .7797 + xbar - (.45 * std)
 
 
-def flow_duration_curve(a: list or np.array, steps: int = 500, exceed: bool = True) -> pd.DataFrame:
+def fdc(a: list or np.array, steps: int = 500, exceed: bool = True) -> pd.DataFrame:
     """
     Generate the flow duration curve for a provided series of data
 
@@ -38,16 +38,14 @@ def flow_duration_curve(a: list or np.array, steps: int = 500, exceed: bool = Tr
     """
     percentiles = [round((100 / steps) * i, 5) for i in range(steps + 1)]
     flows = np.nanpercentile(a, percentiles)
+    columns = ['probability', 'flow']
     if exceed:
         percentiles.reverse()
-        columns = ['Exceedance Probability', 'Flow']
-    else:
-        columns = ['Non-exceedance Probability', 'Flow']
     return pd.DataFrame(np.transpose([percentiles, flows]), columns=columns)
 
 
-def walk_downstream(df: pd.DataFrame, target_id: int, id_col: str, next_col: str, order_col: str = None,
-                    same_order: bool = False, outlet_next_id: str or int = -1) -> tuple:
+def downstream(df: pd.DataFrame, target_id: int, id_col: str, next_col: str, order_col: str = None,
+               same_order: bool = False, outlet_next_id: str or int = -1) -> tuple:
     """
     Traverse a stream network table containing a column of unique ID's, a column of the ID for the stream/basin
     downstream of that point, and, optionally, a column containing the stream order.
@@ -80,8 +78,8 @@ def walk_downstream(df: pd.DataFrame, target_id: int, id_col: str, next_col: str
     return tuple(downstream_ids)
 
 
-def walk_upstream(df: pd.DataFrame, target_id: int, id_col: str, next_col: str, order_col: str = None,
-                  same_order: bool = False) -> tuple:
+def upstream(df: pd.DataFrame, target_id: int, id_col: str, next_col: str, order_col: str = None,
+             same_order: bool = False) -> tuple:
     """
     Traverse a stream network table containing a column of unique ID's, a column of the ID for the stream/basin
     downstream of that point, and, optionally, a column containing the stream order.
@@ -114,6 +112,6 @@ def walk_upstream(df: pd.DataFrame, target_id: int, id_col: str, next_col: str, 
             upstream_rows = df_[df_[next_col] == upstream_rows[id_col].values[0]]
         elif len(upstream_rows) > 1:
             for s_id in upstream_rows[id_col].values.tolist():
-                upstream_ids += list(walk_upstream(df_, s_id, id_col, next_col, order_col, same_order))
+                upstream_ids += list(upstream(df_, s_id, id_col, next_col, order_col, same_order))
                 upstream_rows = df_[df_[next_col] == s_id]
     return tuple(set(upstream_ids))

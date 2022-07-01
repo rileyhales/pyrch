@@ -1,0 +1,12 @@
+name: pyrch
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - google-api-python-client
+  - google-auth-httplib2
+  - google-auth-oauthlib
+  - pandas
+  - numpy
+  - requests
+  - shapely

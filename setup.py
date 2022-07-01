@@ -1,6 +1,6 @@
 from setuptools import setup
 
-version = '0.12'
+version = '0.13'
 
 with open("README.md", "r") as readme:
     long_description = readme.read()
@@ -11,13 +11,13 @@ with open('requirements.txt', 'r') as req:
 project_urls = dict(Source='https://github.com/rileyhales/pyrch',
                     License='https://choosealicense.com/licenses/bsd-3-clause-clear')
 
-classifiers = (
+classifiers = [
     'Programming Language :: Python :: 3',
     'Topic :: Scientific/Engineering',
     'Intended Audience :: Science/Research',
     'License :: OSI Approved :: BSD License',
     'Natural Language :: English',
-)
+]
 
 setup(
     name='rch',

@@ -4,3 +4,4 @@ google-auth-oauthlib
 numpy
 pandas
 requests
+shapely
