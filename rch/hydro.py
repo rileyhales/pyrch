@@ -115,3 +115,123 @@ def upstream(df: pd.DataFrame, target_id: int, id_col: str, next_col: str, order
                 upstream_ids += list(upstream(df_, s_id, id_col, next_col, order_col, same_order))
                 upstream_rows = df_[df_[next_col] == s_id]
     return tuple(set(upstream_ids))
+
+
+def manning_q(k: float, n: float, a: float, r: float, s: float) -> float:
+    """
+    Compute discharge with the manning equation given k, n, a, r and s.
+
+    Args:
+        k (float): unit coefficient 1 for SI or 1.49 for US Customary
+        n (float): the Manning's n value for the stream
+        a (float): the flow area of the stream
+        r (float): the hydraulic radius of the stream
+        s (float): the streambed slope
+
+    Returns:
+        float, the Manning's Q value for the stream
+    """
+    return (k / n) * a * r ** 2 / 3 * s ** 0.5
+
+
+def manning_v(k: float, n: float, r: float, s: float) -> float:
+    """
+    Compute average cross section velocity with the manning equation given k, n, r and s.
+
+    Args:
+        k (float): unit coefficient 1 for SI or 1.49 for US Customary
+        n (float): the Manning's n value for the stream
+        r (float): the hydraulic radius of the stream
+        s (float): the streambed slope
+
+    Returns:
+        float, the Manning's V value for the stream
+    """
+    return manning_q(k, n, 1, r, s)
+
+
+class ChannelCalculator:
+    """
+    Given a cross section profile, computes several channel properties including the area, wetted perimeter, top width,
+    froude number, hydraulic depth, and discharge
+
+    Args:
+        cross_section (pd.DataFrame): a DataFrame of cross section data with columns 'x', 'z', and optionally 'n'
+        s (float): the streambed slope
+
+    Returns:
+        pd.DataFrame containing channel properties
+    """
+    cs: pd.DataFrame
+    s: float
+    min_z: float
+    max_z: float
+
+    def __init__(self, cross_section: pd.DataFrame, s: float):
+        self.cs = cross_section.copy()
+        self.slope = s
+        self.min_z = self.cs['z'].min()
+        self.max_z = self.cs['z'].max()
+
+    def __repr__(self):
+        return f'ChannelCalculator(cross_section={self.cs}, s={self.slope})'
+
+    def __str__(self):
+        return f'ChannelCalculator(cross_section={self.cs}, s={self.slope})'
+
+    def q_given_y(self, y: float) -> float:
+        """
+        Compute the discharge given the channel depth.
+
+        Args:
+            y (float): the channel depth
+
+        Returns:
+            float, the discharge
+        """
+        return
+
+    def y_given_q(self, q: float) -> float:
+        """
+        Compute the channel depth given the discharge.
+
+        Args:
+            q (float): the discharge
+
+        Returns:
+            float, the channel depth
+        """
+        return
+
+    def rating_curves(self, steps: int = 25) -> pd.DataFrame:
+        """
+        Computes rating curves of depth vs discharge and other channel properties including area, wetted perimeter, top
+        width, froude number, hydraulic depth, and discharge.
+
+        Args:
+            steps (int): the number of steps to use in the rating curve
+
+        Returns:
+            pd.DataFrame, the rating curves
+        """
+        return
+
+    @staticmethod
+    def _area_trap(l1, l2, w):
+        return (l1 + l2) * w / 2
+
+    @staticmethod
+    def _hypot(a, b):
+        return (a ** 2 + b ** 2) ** 0.5
+
+    @staticmethod
+    def _width(x2, x1):
+        return x2 - x1
+
+    @staticmethod
+    def _froude(v, y):
+        return v / (9.81 * y) ** 0.5
+
+    @staticmethod
+    def x_intercept(row):
+        return row.z_next / ((row.z_next - row.z) / (row.x_next - row.x)) + row.x
