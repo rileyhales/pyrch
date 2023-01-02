@@ -1,10 +1,21 @@
+from multiprocessing import Pool
+
 import numpy as np
 import pandas as pd
 
-__all__ = ['idw', 'resample_1d', 'resample_2d', 'checkerboard']
+__all__ = ['idw', 'idw_pt', 'idw_grid', 'idw_grid_mp',
+           'uniform_xy_coords',
+           'xyv_to_grid', 'xyv_to_grid',
+           'resample_1d', 'resample_2d', 'checkerboard', ]
 
 
-def idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None, nearest: int = None, bound: int = None) -> float:
+def idw(a: np.array,
+        x: int or float,
+        y: int or float,
+        p: int = 1,
+        r: int or float = None,
+        n: int = None,
+        bound: int = None, ) -> float:
     """
     Computes the inverse distance weighted interpolated value at a specified location (loc) from an array of measured
     values (a). There are 3 ways to limit the interpolation points considered.
@@ -21,52 +32,207 @@ def idw(a: np.array, loc: tuple, p: int = 1, r: int or float = None, nearest: in
 
     Args:
         a (np.array): a numpy array with 3 columns (x, y, value) and a row for each measurement
-        loc (tuple): a tuple of (x, y) coordinates representing the location to get the interpolated values at
+        x (int or float): the x coordinate of the location to get the interpolated values at
+        y (int or float): the y coordinate of the location to get the interpolated values at
         p (int): an integer representing the power factor applied to the distances before inverting (usually 1, 2, 3)
         r (int or float): the radius, same length units as x & y values, to limit the value pairs in a. only points <=
             r distance away are used for the interpolation
-        nearest (int): number of nearest points to include in the interpolation, if that many are available.
-        bound (int): number of nearest points to include from the 4 bounding quadrants, if that many are available.
+        n (int): number of the nearest points to include in the interpolation, if that many are available.
+        bound (int): number of the nearest points to include from the 4 bounding quadrants, if that many are available.
 
     Returns:
         float, the IDW interpolated value for the loc specified
     """
-    # identify the x distance from location to the measurement points
-    x = np.subtract(a[:, 0], loc[0])
+    # identify the xs distance from location to the measurement points
+    xs = np.subtract(a[:, 0], x)
     # identify the y distance from location to the measurement points
-    y = np.subtract(a[:, 1], loc[1])
+    ys = np.subtract(a[:, 1], y)
     # select the values column of the data
-    val = a[:, 2]
+    vs = a[:, 2]
     # compute the pythagorean distance (square root sum of the squares)
-    dist = np.sqrt(np.add(np.multiply(x, x), np.multiply(y, y)))
+    dist = np.sqrt(np.add(np.multiply(xs, xs), np.multiply(ys, ys)))
     # filter the nearest number of points, limit by radius, and/or use bounding points (all use df sorted by distance)
-    if r is not None or nearest is not None or bound is not None:
-        b = pd.DataFrame({'dist': dist, 'val': val, 'x': x, 'y': y})
+    if r is not None or n is not None or bound is not None:
+        b = pd.DataFrame({'dist': dist, 'val': vs, 'x': xs, 'y': ys})
         b.sort_values('dist', inplace=True)
         if bound is not None:
             b = pd.concat((b.loc[(b['x'] >= 0) & (b['y'] > 0)].head(bound),
                            b.loc[(b['x'] >= 0) & (b['y'] < 0)].head(bound),
                            b.loc[(b['x'] < 0) & (b['y'] > 0)].head(bound),
                            b.loc[(b['x'] < 0) & (b['y'] < 0)].head(bound),))
-        if nearest is not None:
-            b = b.head(nearest)
+        if n is not None:
+            b = b.head(n)
         if r is not None:
             b = b[b['dist'] <= r]
         dist = b['dist'].values
-        val = b['val'].values
+        vs = b['val'].values
 
     # raise distances to power (usually 1 or 2)
     dist = np.power(dist, p)
     # inverse the distances
     dist = np.divide(1, dist)
 
-    return float(np.divide(np.sum(np.multiply(dist, val)), np.sum(dist)))
+    return float(np.divide(np.sum(np.multiply(dist, vs)), np.sum(dist)))
+
+
+def idw_pt(a: np.array,
+           x: int or float,
+           y: int or float,
+           p: int = 1,
+           r: int or float = None,
+           n: int = None,
+           bound: int = None, ) -> tuple:
+    """
+    Computes the inverse distance weighted interpolated value at a specified (x, y)
+    
+    Args:
+        a (np.array): a numpy array with 3 columns (x, y, value) and a row for each measurement
+        x (int or float): the x coordinate of the location to get the interpolated values at
+        y (int or float): the y coordinate of the location to get the interpolated values at
+        p (int): an integer representing the power factor applied to the distances before inverting (usually 1, 2, 3)
+        r (int or float): the radius, same length units as x & y values, to limit the value pairs in a. only points <=
+            r distance away are used for the interpolation
+        n (int): number of the nearest points to include in the interpolation, if that many are available.
+        bound (int): number of the nearest points to include from the 4 bounding quadrants, if that many are available.
+
+    Returns:
+        tuple, (x, y, value) of the location and IDW interpolated value for the loc specified
+    """
+    return x, y, idw(a, x, y, p, r, n, bound)
+
+
+def idw_grid(a: np.array,
+             grid: np.array,
+             p: int = 1,
+             r: int or float = None,
+             n: int = None,
+             bound: int = None, ) -> np.array:
+    """
+    Computes the inverse distance weighted interpolated values on a regular grid of locations
+
+    Args:
+        a (np.array): a numpy array with 3 columns (x, y, value) and a row for each measurement
+        grid (list): a list of tuples of the format (x: float, y: float) representing the locations to interpolate
+        p (int): an integer representing the power factor applied to the distances before inverting (usually 1, 2, 3)
+        r (int or float): the radius, same length units as x & y values, to limit the value pairs in a. only points <=
+            r distance away are used for the interpolation
+        n (int): number of the nearest points to include in the interpolation, if that many are available.
+        bound (int): number of the nearest points to include from the 4 bounding quadrants, if that many are available.
+
+    Returns:
+        np.array: a 2D array with the interpolated values
+    """
+    return np.array([idw_pt(a, x, y, p, r, n, bound) for x, y in grid])
+
+
+def idw_grid_mp(a: np.array,
+                grid: np.array,
+                p: int = 1,
+                r: int or float = None,
+                n: int = None,
+                bound: int = None,
+                n_processes: int = None, ) -> np.array:
+    """
+    Computes the inverse distance weighted interpolated values on a regular grid of locations using multiprocessing
+
+    Args:
+        a (np.array): a numpy array with 3 columns (x, y, value) and a row for each measurement
+        grid (list): a list of tuples of the format (x: float, y: float) representing the locations to interpolate
+        p (int): an integer representing the power factor applied to the distances before inverting (usually 1, 2, 3)
+        r (int or float): the radius, same length units as x & y values, to limit the value pairs in a. only points <=
+            r distance away are used for the interpolation
+        n (int): number of the nearest points to include in the interpolation, if that many are available.
+        bound (int): number of the nearest points to include from the 4 bounding quadrants, if that many are available.
+        n_processes (int): number of processes to use for multiprocessing passed to Pool()
+
+    Returns:
+        np.array: a 2D array with the interpolated values
+    """
+    # create a pool of workers to compute the interpolated values
+    with Pool(n_processes) as pool:
+        # map the idw function to the list of locations to interpolate
+        values = pool.starmap(idw_pt, [(a, x, y, p, r, n, bound) for x, y in grid])
+
+    return np.array(values)
+
+
+def xy_to_grid(xy: np.array) -> np.array:
+    """
+    Converts a numpy array of (x, y) to a 2D grid of values sorted by decreasing y and increasing x
+
+    Args:
+        xy: a numpy array of (x, y) float values of shape (n_rows, 2)
+
+    Returns:
+        np.array: a 2D array of values sorted by decreasing y and increasing x
+    """
+    # todo
+    # convert to array sorted by decreasing y value then by increasing x value
+    arr = np.array(sorted(xy, key=lambda x: (-x[1], x[0])))
+
+    # find the number of unique x and y values
+    num_x = len(np.unique(xy[:, 0]))
+    num_y = len(np.unique(xy[:, 1]))
+
+    # reshape the array to a 2D array with the interpolated values
+    return arr.reshape((num_y, num_x))
+
+
+def xyv_to_grid(xyv: np.array) -> np.array:
+    """
+    Converts a numpy array of (x, y, value) to a 2D grid of values sorted by decreasing y and increasing x
+
+    Args:
+        xyv: a numpy array of (x, y, value) float values of shape (n_rows, 3)
+
+    Returns:
+        np.array: a 2D array of values sorted by decreasing y and increasing x
+    """
+
+    # convert to array sorted by decreasing y value then by increasing x value
+    arr = np.array(sorted(xyv, key=lambda x: (-x[1], x[0])))
+
+    # find the number of unique x and y values
+    num_x = len(np.unique(xyv[:, 0]))
+    num_y = len(np.unique(xyv[:, 1]))
+
+    # select only the interpolated values
+    arr = arr[:, 2]
+
+    # reshape the array to a 2D array with the interpolated values
+    return arr.reshape((num_y, num_x))
+
+
+def uniform_xy_coords(x_min: int or float, x_max: int or float, y_min: int or float, y_max: int or float,
+                      step: int or float) -> tuple[np.array, ...]:
+    """
+    Creates a uniform grid of coordinates from the specified min and max values and step size
+
+    Args:
+        x_min: the minimum x value of the grid to interpolate
+        x_max: the maximum x value of the grid to interpolate
+        y_min: the minimum y value of the grid to interpolate
+        y_max: the maximum y value of the grid to interpolate
+        step: the step size of the grid
+
+    Returns:
+        np.array: a 1D array with the x and y coordinates of the grid
+    """
+    # create the grid of locations to interpolate
+    x = np.arange(x_min, x_max + step, step)
+    y = np.arange(y_min, y_max + step, step)
+
+    # reverse the y values, so they are sorted by decreasing value
+    y = y[::-1]
+
+    # make a list of (x, y) tuples for each coordinate pair
+    return np.array([(i, j) for i in x for j in y]), x, y
 
 
 def random_xyv(n: int = 41, random: bool = False) -> pd.DataFrame:
     """
     Generates a symmetrical, square shaped grid centered at 0, 0 where the length of one side is n. N should be an odd
-    number so that the grid can be symmetrical and include the x and y axis lines. This function will add 1 to the
+    number so that the grid can be symmetrical and include the x and y-axis lines. This function will add 1 to the
     shape if you provide an even number.
 
     Args:

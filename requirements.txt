@@ -3,5 +3,6 @@ google-auth-httplib2
 google-auth-oauthlib
 numpy
 pandas
+geopandas
 requests
 shapely
