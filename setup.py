@@ -5,9 +5,6 @@ version = '0.14'
 with open("README.md", "r") as readme:
     long_description = readme.read()
 
-with open('requirements.txt', 'r') as req:
-    install_requires = req.read().splitlines()
-
 PYTHON_REQUIRES = '>=3.11'
 INSTALL_REQUIRES = [
     'google-api-python-client',
