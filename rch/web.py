@@ -1,4 +1,3 @@
-# conda install google-api-python-client google-auth-httplib2 google-auth-oauthlib pandas numpy
 import numpy as np
 import pandas as pd
 import requests
