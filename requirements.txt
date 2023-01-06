@@ -1,9 +1,0 @@
-google-api-python-client
-google-auth-httplib2
-google-auth-oauthlib
-affine
-numpy
-pandas
-geopandas
-requests
-shapely

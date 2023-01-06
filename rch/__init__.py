@@ -7,6 +7,6 @@ import rch.web
 import rch.gis
 
 __all__ = ['arrays', 'df', 'gdf', 'hydro', 'sudoku', 'web', 'gis']
-__version__ = '0.13'
+__version__ = '0.14'
 __author__ = 'Riley Hales'
 __license__ = 'BSD Clear'
