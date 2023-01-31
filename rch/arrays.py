@@ -171,13 +171,16 @@ def idw_grid_vector(a: np.array,
         p: a positive integer representing the exponent applied to the distances before inverting (usually 1, 2, 3)
 
     Returns:
-
+        np.array: a 2d array of the interpolated values
     """
+    # mask (drop) rows where the value is NaN in case data have not been cleaned
+    arr = a[~np.isnan(a[:, 2])]
+
     # broadcast a 2d array to a 3d array
-    shape = (a[:, 2].shape[0], y.shape[0], x.shape[1])
-    xs = np.broadcast_to(x, shape) - a[:, 0].reshape(-1, 1, 1)
-    ys = np.broadcast_to(y, shape) - a[:, 1].reshape(-1, 1, 1)
-    vs = np.broadcast_to(a[:, 2].reshape(-1, 1, 1), shape)
+    shape = (arr[:, 2].shape[0], y.shape[0], x.shape[1])
+    xs = np.broadcast_to(x, shape) - arr[:, 0].reshape(-1, 1, 1)
+    ys = np.broadcast_to(y, shape) - arr[:, 1].reshape(-1, 1, 1)
+    vs = np.broadcast_to(arr[:, 2].reshape(-1, 1, 1), shape)
 
     dists = np.sqrt(np.add(np.multiply(xs, xs), np.multiply(ys, ys)))
     dists = np.power(dists, p)
